@@ -1,24 +1,15 @@
-import { Routes, Route } from "react-router-dom";
-import LoginPage from "./pages/LoginPage";
-import RegisterPage from "./pages/RegisterPage";
-import Navbar from "./components/Navbar";
-import ProductsPage from "./pages/ProductsPage";
-import CartPage from "./pages/CartPage";
-import OrdersPage from "./pages/OrdersPage";
+import { Provider } from 'react-redux';
+import { store } from './app/store';
+import ProductsPage from './pages/ProductsPage';
 
-export default function App() {
+function App() {
   return (
-    <div className="min-h-screen bg-gray-100 text-gray-900">
-      <Navbar />
-      <div className="container mx-auto px-4 py-6">
-        <Routes>
-          <Route path="/login" element={<LoginPage />} />
-          <Route path="/register" element={<RegisterPage />} />
-          <Route path="/products" element={<ProductsPage />} />
-          <Route path="/cart" element={<CartPage />} />
-          <Route path="/orders" element={<OrdersPage />} />
-        </Routes>
+    <Provider store={store}>
+      <div className="bg-gray-100 min-h-screen">
+        <ProductsPage />
       </div>
-    </div>
+    </Provider>
   );
 }
+
+export default App;

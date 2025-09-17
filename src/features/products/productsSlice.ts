@@ -12,15 +12,17 @@ const initialState: ProductsState = {
 
 export const fetchProducts = createAsyncThunk('products/fetch', async () => {
   const res = await API.get('/products');
-  return res.data;
+  return res.data as Product[];
 });
 
 const productsSlice = createSlice({
   name: 'products',
-  initialState: { items: [] },
+  initialState,
   reducers: {},
   extraReducers: builder => {
-    builder.addCase(fetchProducts.fulfilled, (state, action) => { state.items = action.payload; });
+    builder.addCase(fetchProducts.fulfilled, (state, action) => {
+      state.items = action.payload;
+    });
   },
 });
 
