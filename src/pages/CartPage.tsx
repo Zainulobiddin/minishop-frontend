@@ -1,45 +1,51 @@
-import  { useEffect } from 'react';
-import { createOrder } from '../features/orders/ordersSlice';
-import { useAppDispatch, useAppSelector } from '../app/hooks';
-import { fetchCart, removeFromCart } from '../features/cart/cartSlice';
-import type { RootState } from '../app/store';
+import { useAppSelector, useAppDispatch } from '../app/hooks';
+import { removeFromCart } from '../features/cart/cartSlice';
 
 const CartPage = () => {
   const dispatch = useAppDispatch();
-  const cart = useAppSelector((state: RootState) => state.cart.items);
+  const cartItems = useAppSelector((state) => state.cart.items);
+  const userId = useAppSelector((state) => state.auth.userId);
+  
+  const localCart = !userId ? JSON.parse(localStorage.getItem("cart") || "[]") : [];
+  const cartItemsToShow = userId ? cartItems : localCart;
+  console.log(cartItemsToShow);
+  if (cartItemsToShow.length === 0) {
+    return <p className="p-6">Your cart is empty.</p>;
+  }
 
-  useEffect(() => {
-    dispatch(fetchCart());
-  }, [dispatch]);
 
-  const handleCheckout = async () => {
-    await dispatch(createOrder());
-    alert('Order placed!');
-    dispatch(fetchCart());
-  };
 
   return (
     <div className="p-6">
-      <h1 className="text-xl mb-4">Your Cart</h1>
-      {cart.length === 0 ? <p>Cart is empty</p> : (
-        <div className="space-y-4">
-          {cart.map((item: any) => (
-            <div key={item.productId} className="flex justify-between border p-3">
-              <div>
-                <h2>{item.product.name}</h2>
-                <p>Quantity: {item.quantity}</p>
-              </div>
-              <div>
-                <p>${item.product.price * item.quantity}</p>
-                <button className="bg-red-500 text-white p-1 mt-2" onClick={() => dispatch(removeFromCart(item.productId))}>Remove</button>
-              </div>
-            </div>
-          ))}
-          <button className="mt-4 bg-green-500 text-white p-2" onClick={handleCheckout}>Checkout</button>
+      <h1 className="text-xl font-bold mb-4">Your Cart</h1>
+      {cartItemsToShow.map((item: any) => (
+        <div
+          key={item.productId}
+          className="flex justify-between border-b p-2 gap-3"
+        >
+          <span>
+            {item.name ?? 'Product'} - ({item.quantity}n - ${item.quantity * item.price})
+          </span>
+
+          <button
+            className="text-red-500"
+            onClick={() =>
+              userId
+                ? dispatch(removeFromCart(item.productId))
+                : handleRemoveLocal(item.productId)
+            }
+          >
+            Remove
+          </button>
         </div>
-      )}
+      ))}
     </div>
   );
 };
-
+function handleRemoveLocal(productId: number) {
+  const carts = JSON.parse(localStorage.getItem('cart') || '[]');
+  const updated = carts.filter((c: any) => c.productId !== productId);
+  localStorage.setItem('cart', JSON.stringify(updated));
+  window.location.reload(); 
+}
 export default CartPage;
